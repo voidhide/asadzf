@@ -3023,21 +3023,32 @@ local Library do
                         return
                     end
 
-                    Dropdown.Value = Option
-                    Library.Flags[Dropdown.Flag] = Option
-
-                    for Index, Value in Option do
-                        local OptionData = Dropdown.Options[Value]
-                        
-                        if not OptionData then
-                            continue
+                    local Selected, Values = {}, {}
+                    for Index, Value in pairs(Option) do
+                        local Name
+                        if type(Value) == "string" then
+                            Name = Value
+                        elseif Value == true and type(Index) == "string" then
+                            Name = Index
                         end
+                        if Name and Dropdown.Options[Name] and not Selected[Name] then
+                            Selected[Name] = true
+                            TableInsert(Values, Name)
+                        end
+                    end
+                    table.sort(Values, function(A, B)
+                        return StringLower(A) < StringLower(B)
+                    end)
 
-                        OptionData.Selected = true 
-                        OptionData:Toggle("Active")
+                    Dropdown.Value = Values
+                    Library.Flags[Dropdown.Flag] = Values
+
+                    for Name, OptionData in pairs(Dropdown.Options) do
+                        OptionData.Selected = Selected[Name] == true
+                        OptionData:Toggle(OptionData.Selected and "Active" or "Inactive")
                     end
 
-                    Items["Value"].Instance.Text = TableConcat(Option, ", ")
+                    Items["Value"].Instance.Text = #Values > 0 and TableConcat(Values, ", ") or "--"
                 else
                     if not Dropdown.Options[Option] then
                         return
@@ -3168,12 +3179,27 @@ local Library do
             end
 
             function Dropdown:Refresh(List)
-                for Index, Value in Dropdown.Options do 
-                    Dropdown:Remove(Value.Name)
+                List = type(List) == "table" and List or {}
+                local Previous = Data.Multi and Dropdown.Value or nil
+                local Names = {}
+                for Name in pairs(Dropdown.Options) do
+                    TableInsert(Names, Name)
                 end
 
-                for Index, Value in List do 
-                    Dropdown:Add(Value)
+                for _, Name in ipairs(Names) do
+                    Dropdown:Remove(Name)
+                end
+
+                local Added = {}
+                for _, Value in pairs(List) do
+                    if type(Value) == "string" and Value ~= "" and not Added[Value] then
+                        Added[Value] = true
+                        Dropdown:Add(Value)
+                    end
+                end
+
+                if Data.Multi then
+                    Dropdown:Set(Previous or {})
                 end
             end
 
@@ -4794,7 +4820,7 @@ local Library do
                     return
                 end
 
-                if IsTyping(GameProcessed) then
+                if IsTyping(Data.IgnoreGameProcessed ~= true and GameProcessed) then
                     return
                 end
 
@@ -4834,7 +4860,7 @@ local Library do
                     return
                 end
 
-                if IsTyping(GameProcessed) then
+                if IsTyping(Data.IgnoreGameProcessed ~= true and GameProcessed) then
                     return
                 end
 
