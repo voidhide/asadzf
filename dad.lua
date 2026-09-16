@@ -81,7 +81,6 @@ local Library do
             ["Checkers"] = { "Checkers.png", "https://github.com/sametexe001/images/blob/main/checkers.png?raw=true" },
         },
 
-        -- Ignore below
         Pages = { },
         Sections = { },
 
@@ -280,14 +279,12 @@ local Library do
 
     Library.Theme = TableClone(Themes["Preset"])
 
-    -- Folders
     for Index, Value in Library.Folders do 
         if not isfolder(Value) then
             makefolder(Value)
         end
     end
 
-    -- Images
     for Index, Value in Library.Images do 
         local ImageData = Value
 
@@ -299,7 +296,6 @@ local Library do
         end
     end
 
-    -- Tweening
     local Tween = { } do
         Tween.__index = Tween
 
@@ -393,7 +389,6 @@ local Library do
         end
     end
 
-    -- Instances
     local Instances = { } do
         Instances.__index = Instances
 
@@ -800,7 +795,6 @@ local Library do
         end
     end
 
-    -- Custom font
     local CustomFont = { } do
         function CustomFont:New(Name, Weight, Style, Data)
             if isfile(Library.Folders.Assets .. "/" .. Name .. ".json") then
@@ -1107,6 +1101,11 @@ local Library do
         local Cached = self._SpinImages
         if type(Cached) == "table" and Cached[1] then
             SetImage(Cached[1])
+        else
+            local First = self:PreloadSpinFrames(1)
+            if type(First) == "table" and First[1] then
+                SetImage(First[1])
+            end
         end
 
         if self._SpinAnim then
@@ -1115,7 +1114,6 @@ local Library do
 
         task.spawn(function()
             RunService.RenderStepped:Wait()
-            task.wait(0.8)
             local Images = self:PreloadSpinFrames()
             PinLogo()
             if type(Images) ~= "table" or #Images < 2 then
@@ -1596,7 +1594,6 @@ local Library do
         return Start + (Finish - Start) * Time
     end
 
-    -- Components
     local Components = { } do
         Components.Window = function(self, Data)
             local Items = { } do
@@ -3486,7 +3483,7 @@ local Library do
             }):AddToTheme({Color = "Border"})
         end
 
-        Components.Colorpicker = function(self, Data) -- poetry warning (╯°□°)╯
+        Components.Colorpicker = function(self, Data) 
             local Colorpicker = {
                 IsOpen = false,
 
@@ -5022,7 +5019,7 @@ local Library do
             return Textbox, Items
         end
 
-        Components.Searchbox = function(self, Data) -- just pasted the entire dropdown fucntion with different instances, i cant be asked to make a whole new functionality
+        Components.Searchbox = function(self, Data) 
             local Dropdown = {
                 Flag = Data.Flag, 
                 Value = { },
@@ -5379,7 +5376,6 @@ local Library do
         end
     end
 
-    -- Library components
     Library.Watermark = function(self, Name)
         local Watermark = { }
 
@@ -6483,7 +6479,6 @@ local Library do
                         end)
                     end
                 else
-                    --print("this shit rigged")
                     Playerlist.Player = nil
                     PlayerData:Toggle("Inactive")
                     Items["PlayerAvatar"].Instance.Image = "rbxassetid://98200387761744"
@@ -7305,7 +7300,7 @@ end
 
 
 
---> SCRIPT
+--> le load
 
 Library.SpinFrames = {
 	"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",
