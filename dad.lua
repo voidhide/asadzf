@@ -1,5 +1,3 @@
--- Scoot UI library used by zzzzartefact/new lib.lua.
--- Keep this file synchronized with the source hosted as dad.lua.
 if Library then
     Library:Unload()
 end
